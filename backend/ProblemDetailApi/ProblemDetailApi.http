@@ -1,0 +1,29 @@
+@WebApplication2_HostAddress = http://localhost:5219
+
+GET {{WebApplication2_HostAddress}}/market/0CCB2598-CA6D-48CF-A78D-45CD04044CE0
+Accept: application/json
+
+###
+
+GET {{WebApplication2_HostAddress}}/market/00000000-0000-0000-0000-00000000
+Accept: application/json
+
+###
+
+GET {{WebApplication2_HostAddress}}/market/problemdetail/problem
+Accept: application/json
+
+###
+
+GET {{WebApplication2_HostAddress}}/market/problemdetail/good?delay=true
+Accept: application/json
+
+###
+
+POST {{WebApplication2_HostAddress}}/market/
+Content-Type: application/json
+
+{
+  "Name": "Some name",
+  "Location": "Some place"
+}
