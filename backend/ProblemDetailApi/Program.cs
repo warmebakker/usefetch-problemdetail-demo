@@ -32,18 +32,48 @@ app.MapGet("/market/{id}", async (Guid id) =>
 
 app.MapPost("/market", (FruitMarket market) =>
 {
-	string[] notGood = ["bad", "fail", "error"];
-
-	if (notGood.Contains(market.Name))
+	if (String.IsNullOrWhiteSpace(market.Name))
 	{
 		return Results.ValidationProblem(errors: new Dictionary<string, string[]>
 		{
-			{ "Name", [ "Preserved value" ] }
+			{ nameof(market.Name), [ "Value is required" ] }
+		},
+		detail: "The provided value(s) did not meet the minimum requirements. Please review and update accordingly");
+	}
+
+	if (String.IsNullOrWhiteSpace(market.Location))
+	{
+		return Results.ValidationProblem(errors: new Dictionary<string, string[]>
+		{
+			{ nameof(market.Location), [ "Value is required" ] }
 		},
 		detail: "The provided value(s) did not meet the minimum requirements. Please review and update accordingly");
 	}
 
 	return Results.Ok(new { Status = "Success!", Key = Guid.NewGuid() });
+});
+
+app.MapPut("/market", (FruitMarket market) =>
+{
+	if (String.IsNullOrWhiteSpace(market.Name))
+	{
+		return Results.ValidationProblem(errors: new Dictionary<string, string[]>
+		{
+			{ nameof(market.Name), [ "Value is required" ] }
+		},
+		detail: "The provided value(s) did not meet the minimum requirements. Please review and update accordingly");
+	}
+
+	if (String.IsNullOrWhiteSpace(market.Location))
+	{
+		return Results.ValidationProblem(errors: new Dictionary<string, string[]>
+		{
+			{ nameof(market.Location), [ "Value is required" ] }
+		},
+		detail: "The provided value(s) did not meet the minimum requirements. Please review and update accordingly");
+	}
+
+	return Results.Ok(new { Status = $"Success for '{market.Name}'", Key = Guid.NewGuid() });
 });
 
 app.MapGet("/market/problemdetail/{what}", async (string what, [FromQuery] bool? delay) =>

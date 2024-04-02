@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue';
+import { ref } from 'vue';
 import { makeFetchePost } from '../utils/fetcher';
-import { makeFetcherGetJson } from '../utils/fetcher';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 
@@ -17,34 +16,29 @@ interface PostReturn {
     key: string;
 }
 
-const payload = ref<FruitMarket>({
-    name: 'Some default value',
-    location: 'Initial default'
-});
+const formDefaults: FruitMarket = {
+    name: '',
+    location: 'the default location'
+};
 
-const get = makeFetcherGetJson<FruitMarket>(url + '0CCB2598-CA6D-48CF-A78D-45CD04044CE0');
+const payload = ref<FruitMarket>({ ...formDefaults });
+
 const post = makeFetchePost<FruitMarket | null, PostReturn>(url, payload);
 
-const submit = () => {
-    post.execute();
-}
+const submit = async () => {
+    await post.execute();
+    if (!post.error.value) {
+        payload.value = { ...formDefaults }; // Reset form to defaults
+    }
+};
 
-onMounted(async () => {
-    await get.execute();
-    if (get.data.value !== null)
-        payload.value = get.data.value;
-});
-
-const isFetchingAny = computed(() => {
-    return get.isFetching.value || post.isFetching.value;
-});
 </script>
 
 <template>
-    <div class="flex flex-col gap-4">
-        <input-text :disabled="isFetchingAny" type="text" v-model="payload.name" placeholder="Name" />
-        <input-text :disabled="isFetchingAny" type="text" v-model="payload.location" placeholder="Location" />
-        <Button :loading="isFetchingAny" @click="submit" label="🐰 Post data now 🪅" />
+    <form @submit.prevent="submit" class="flex flex-col gap-4">
+        <input-text :disabled="post.isFetching.value" type="text" v-model="payload.name" placeholder="Name" />
+        <input-text :disabled="post.isFetching.value" type="text" v-model="payload.location" placeholder="Location" />
+        <Button type="submit" :loading="post.isFetching.value" label="🐰 Post data now 🪅" />
 
         <pre v-if="post.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">
 Raw error message: 
@@ -53,5 +47,5 @@ Raw error message:
         <pre v-else-if="post.data.value" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">
 {{ post.data.value }}
         </pre>
-    </div>
+    </form>
 </template>

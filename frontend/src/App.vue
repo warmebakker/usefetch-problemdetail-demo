@@ -3,6 +3,7 @@ import Toaster from '@/components/Toaster.vue'
 import LightDarkSwitch from '@/components/LighDarkSwich.vue'
 import FetcherGetData from '@/components/GetData.vue'
 import FetcherPostData from '@/components/PostData.vue'
+import FetcherPutData from '@/components/PutData.vue'
 import Card from 'primevue/card'
 </script>
 
@@ -19,7 +20,14 @@ import Card from 'primevue/card'
         </Card>
 
         <Card class="mt-5">
-            <template #title>POST problem result</template>
+            <template #title>PUT with pre-get</template>
+            <template #content>
+                <FetcherPutData />
+            </template>
+        </Card>
+
+        <Card class="mt-5">
+            <template #title>POST and back to defaults</template>
             <template #content>
                 <FetcherPostData />
             </template>
