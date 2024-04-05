@@ -1,6 +1,6 @@
-import { type UseFetchOptions, useFetch, BeforeFetchContext } from '@vueuse/core'
+import { type UseFetchOptions, useFetch, BeforeFetchContext, useEventBus } from '@vueuse/core'
 import type { MaybeRefOrGetter, Ref } from 'vue';
-import { Eventing } from './event-bus'
+import { toastKey } from '@/utils/event-keys';
 
 export interface ProblemDetailsRfc7807 {
     type: string;
@@ -11,6 +11,8 @@ export interface ProblemDetailsRfc7807 {
     errors: Record<string, string[]>;
 }
 
+const toastsBus = useEventBus(toastKey);
+
 const fetchAndHandleError = (error: Ref<any>,
     excludeErrors: number[],
     executeFetch: () => Promise<any>) => {
@@ -18,11 +20,13 @@ const fetchAndHandleError = (error: Ref<any>,
         await executeFetch();
         if (error.value && !excludeErrors.includes(error.value.status)) {
             // Do something with the error
-            Eventing.emit('toast', {
-                severity: 'error',
-                detail: error.value.detail,
-                summary: error.value.title,
-                life: 5000,
+            toastsBus.emit({
+                options: {
+                    severity: 'error',
+                    detail: error.value.detail,
+                    summary: error.value.title,
+                    life: 5000,
+                }
             });
         }
     }
