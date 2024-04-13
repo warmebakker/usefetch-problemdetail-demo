@@ -1,62 +1,73 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { makeFetcherGetJson } from '../utils/fetcher';
 import Button from 'primevue/button';
 import SelectButton from 'primevue/selectbutton';
 import BlockUI from 'primevue/blockui';
+import useReactiveApiFetcher from '@/utils/apiFetcher';
+import toastsBus from '@/utils/toasting';
 
-const baseUrl: string = 'https://localhost:7107/market/problemdetail'
+const fetcher = useReactiveApiFetcher<ExpectedResult>('/market/problemdetail')
 
 interface ExpectedResult {
-    description: string;
-    number: number;
+  description: string;
+  number: number;
 }
 
 interface ProblemRequest {
-    key: number;
-    value: string;
-    delay?: boolean;
+  key: number;
+  value: string;
+  delay?: boolean;
 }
 
 const whatProblem = ref<ProblemRequest>({ key: 1, value: 'ok' })
 const options = ref<ProblemRequest[]>([
-    { key: 1, value: 'ok' },
-    { key: 2, value: 'problem' },
-    { key: 4, value: 'notfound' },
-    { key: 5, value: 'notfoundjson' },
-    { key: 6, value: 'nocontent' },
-    { key: 7, value: 'validation' },
-    { key: 8, value: 'empty' },
-    { key: 9, value: 'exception', delay: true },
-    { key: 10, value: 'unautherized' },
-    { key: 12, value: 'slow-ok', delay: true },
+  { key: 1, value: 'ok' },
+  { key: 2, value: 'problem' },
+  { key: 4, value: 'notfound' },
+  { key: 5, value: 'notfoundjson' },
+  { key: 6, value: 'nocontent' },
+  { key: 7, value: 'validation' },
+  { key: 8, value: 'empty' },
+  { key: 9, value: 'exception', delay: true },
+  { key: 10, value: 'unautherized' },
+  { key: 12, value: 'slow-ok', delay: true },
 ]);
 
-const url = computed(() => {
-    return `${baseUrl}/${whatProblem.value!.value}${whatProblem.value!.delay ? '?delay=true' : ''}`;
+const queryUrl = computed(() => {
+  return `${whatProblem.value!.value}${whatProblem.value!.delay ? '?delay=true' : ''}`;
 })
 
-const fetchGet = makeFetcherGetJson<ExpectedResult>(url, [204, 404])
+const fetch = async () => {
+  const result = await fetcher.execute(queryUrl.value)
+  if (!result.success) return;
 
-const fetch = () => {
-    fetchGet.execute();
+  toastsBus.emit({
+    options: {
+      severity: 'info',
+      detail: ' fetched some data',
+      summary: 'Success 👍',
+      life: 2000,
+    }
+  })
+
+  console.log('result.success', result.success)
+  console.log('result.data', result.data)
 }
-
 </script>
 
 <template>
-    <BlockUI :blocked="fetchGet.isFetching.value" class="flex flex-col gap-4" :pt="{ mask: 'bg-surface-100 dark:bg-surface-900 opacity-40' }">
-        <SelectButton v-model="whatProblem" :options="options" optionLabel="value" dataKey="key" />
-        <i class="font-mono text-sm">{{ url }}</i>
-        <Button :loading="fetchGet.isFetching.value" @click="fetch" label="🤖 Run request 🐲" />
+  <BlockUI :blocked="fetcher.isLoading.value" class="flex flex-col gap-4" :pt="{ mask: 'bg-surface-100 dark:bg-surface-900 opacity-40' }">
+    <SelectButton v-model="whatProblem" :options="options" optionLabel="value" dataKey="key" />
+    <i class="font-mono text-sm">{{ queryUrl }}</i>
+    <Button :loading="fetcher.isLoading.value" @click="fetch" label="🤖 Run request 🐲" />
 
-        <pre v-if="fetchGet.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">
+    <pre v-if="fetcher.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">
 Raw error message: 
-{{ fetchGet.error }}
+{{ fetcher.error.value }}
         </pre>
 
-        <pre v-if="fetchGet.data.value" :class="{ 'opacity-50': fetchGet.error.value }" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">
-{{ fetchGet.data.value }}
+    <pre v-if="fetcher.data.value" :class="{ 'opacity-50': fetcher.error.value }" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">
+{{ fetcher.data.value }}
         </pre>
-    </BlockUI>
+  </BlockUI>
 </template>

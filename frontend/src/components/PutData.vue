@@ -1,55 +1,39 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue';
-import { makeFetchePut } from '../utils/fetcher';
-import { makeFetcherGetJson } from '../utils/fetcher';
+import { onMounted, ref } from 'vue';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
+import useReactiveApiFetcher from '@/utils/apiFetcher';
 
-const url: string = 'https://localhost:7107/market/';
+const marketApi = useReactiveApiFetcher<FruitMarket>('/market')
 
 interface FruitMarket {
-    name: string;
-    location: string
+  name: string;
+  location: string
 }
 
-interface PostReturn {
-    status: string;
-    key: string;
-}
+const formData = ref<FruitMarket>({} as FruitMarket);
 
-const payload = ref<FruitMarket>({} as FruitMarket);
-
-const get = makeFetcherGetJson<FruitMarket>(url + '0CCB2598-CA6D-48CF-A78D-45CD04044CE0');
-const put = makeFetchePut<FruitMarket | null, PostReturn>(url, payload);
-
-const submit = async () => {
-    await put.execute();
+const formSubmit = async () => {
+  await marketApi.execute('', 'PUT', formData.value);
 };
 
 onMounted(async () => {
-    await get.execute();
-    if (get.data.value !== null)
-        payload.value = { ...get.data.value };
+  var result = await marketApi.execute('/0CCB2598-CA6D-48CF-A78D-45CD04044CE0', 'GET');
+  if (result.success)
+    formData.value = { ...result.data } as FruitMarket;
 });
-
-const isFetchingAny = computed(() => {
-    return get.isFetching.value || put.isFetching.value;
-});
-
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="flex flex-col gap-4">
-        <input-text :disabled="isFetchingAny" type="text" v-model="payload.name" placeholder="Name" />
-        <input-text :disabled="isFetchingAny" type="text" v-model="payload.location" placeholder="Location" />
-        <Button type="submit" :loading="isFetchingAny" label="🐰 Put data now 🪅" />
+  <form @submit.prevent="formSubmit" class="flex flex-col gap-4">
+    <input-text :disabled="marketApi.isLoading.value" type="text" v-model="formData.name" placeholder="Name" />
+    <input-text :disabled="marketApi.isLoading.value" type="text" v-model="formData.location" placeholder="Location" />
+    <Button type="submit" :loading="marketApi.isLoading.value" label="🐰 Put data now 🪅" />
 
-        <pre v-if="put.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">
-Raw error message: 
-{{ put.error }}
-      </pre>
-        <pre v-else-if="put.data.value" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">
-{{ put.data.value }}
-        </pre>
-    </form>
+    <pre v-if="marketApi.error.value" class="text-sm overflow-scroll border-2 border-orange-700 border-dashed rounded-lg px-2 pt-1">{{ marketApi.error }}
+    </pre>
+
+    <pre v-else-if="marketApi.data.value" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">{{ marketApi.data }}
+    </pre>
+  </form>
 </template>
