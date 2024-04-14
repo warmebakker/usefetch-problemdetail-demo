@@ -1,6 +1,6 @@
 # .Net 8 api backend + Vue 3 frontend 
 
-A playground app to showcase handling [rfc7807](https://www.rfc-editor.org/rfc/rfc7807) formatted api errors.
+A playground app to showcase handling [rfc7807](https://www.rfc-editor.org/rfc/rfc7807) formatted fetch errors on the frontend with uniform error handling.
 
 ## Backend
 
@@ -16,7 +16,7 @@ It uses `builder.Services.AddProblemDetails();` for uniform json data on error.
 
 - Vue 3
 - Typescript
-- UseFetch from VueUse to handle the api calls
+- useAxios from vueuse/integrations to handle the api calls
 - Tailwind CSS
 - PrimeVue Tailwind Presets 0.8.2
 
