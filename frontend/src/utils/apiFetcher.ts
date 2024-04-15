@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse, Method } from 'axios'
+import axios, { AxiosError, type AxiosResponse, type Method } from 'axios'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import type { ProblemDetailsRfc7807 } from '@/types/ProblemDetailsRfc7807';
 import { httpStatusToText } from '@/utils/httpStatusToText';
@@ -29,22 +29,25 @@ const fulfilledInterceptor = (response: AxiosResponse) => {
  * Axios: Any status codes that falls outside the range of 2xx cause this function to trigger
  */
 const rejectedInterceptor = (error: AxiosError) => {
-  if (!error.response!.data) {
-    error.response!.data = unknownError(error.response!.status || -9_999);
-  };
+  if (!error.response)
+    error.response = {} as AxiosResponse;
 
-  let problem = error.response!.data as ProblemDetailsRfc7807;
+  if (!error.response.data) {
+    error.response.data = unknownError(error.response.status || -9_999);
+  }
+
+  const problem = error.response.data as ProblemDetailsRfc7807;
 
   if (!problem.title || !problem.detail || !problem.status) {
     // spread unknown error into problem
-    Object.assign(problem, unknownError(error.response?.status || -9_999));
+    Object.assign(problem, unknownError(error.response.status || -9_999));
   }
 
   toastsBus.emit({
     options: {
       severity: 'error',
-      detail: problem.detail,
       summary: problem.title,
+      detail: problem.detail,
       life: 5000,
     }
   });
@@ -83,7 +86,6 @@ const executeFetch = async <T>(fetchAxios: FetchAxiosType<T>,
         data: undefined
       }
     }
-
     throw error
   }
 }

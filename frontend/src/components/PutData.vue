@@ -25,9 +25,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <form @submit.prevent="formSubmit" class="flex flex-col gap-4">
-    <input-text :disabled="marketApi.isLoading.value" type="text" v-model="formData.name" placeholder="Name" />
-    <input-text :disabled="marketApi.isLoading.value" type="text" v-model="formData.location" placeholder="Location" />
+  <form class="flex flex-col gap-4" @submit.prevent="formSubmit">
+    <input-text v-model="formData.name" :disabled="marketApi.isLoading.value" type="text" placeholder="Name" />
+    <input-text v-model="formData.location" :disabled="marketApi.isLoading.value" type="text" placeholder="Location" />
     <Button type="submit" :loading="marketApi.isLoading.value" label="🐰 Put data now 🪅" />
 
     <pre v-if="marketApi.error.value" class="text-sm overflow-scroll border-2 border-orange-700 border-dashed rounded-lg px-2 pt-1">{{ marketApi.error }}

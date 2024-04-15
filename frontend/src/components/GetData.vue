@@ -55,9 +55,9 @@ const fetch = async () => {
 
 <template>
   <BlockUI :blocked="marketApi.isLoading.value" class="flex flex-col gap-4" :pt="{ mask: 'bg-surface-100 dark:bg-surface-900 opacity-40' }">
-    <SelectButton v-model="whatProblem" :options="options" optionLabel="value" dataKey="key" />
+    <SelectButton v-model="whatProblem" :options="options" option-label="value" data-key="key" />
     <i class="font-mono text-sm">{{ queryUrl }}</i>
-    <Button :loading="marketApi.isLoading.value" @click="fetch" label="🤖 Run request 🐲" />
+    <Button :loading="marketApi.isLoading.value" label="🤖 Run request 🐲" @click="fetch" />
 
     <pre v-if="marketApi.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">{{ marketApi.error.value }}
     </pre>
