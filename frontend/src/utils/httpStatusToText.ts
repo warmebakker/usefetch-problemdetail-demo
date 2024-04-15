@@ -7,6 +7,6 @@ export const httpStatusToText = (status: number): string => {
     case 404: return "Resource not found";
     case 405: return "Method not allowed";
     case 500: return "Internal server error";
-    default: return `The interwebs might be broken (${Number})`;
+    default: return `The interwebs might be broken (error code: ${status})`;
   }
 };
