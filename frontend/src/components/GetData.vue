@@ -4,9 +4,10 @@ import Button from 'primevue/button';
 import SelectButton from 'primevue/selectbutton';
 import BlockUI from 'primevue/blockui';
 import useReactiveApiFetcher from '@/utils/apiFetcher';
+
 import toastsBus from '@/utils/toasting';
 
-const fetcher = useReactiveApiFetcher<ExpectedResult>('/market/problemdetail')
+const marketApi = useReactiveApiFetcher<ExpectedResult>('/market/problemdetail')
 
 interface ExpectedResult {
   description: string;
@@ -38,36 +39,30 @@ const queryUrl = computed(() => {
 })
 
 const fetch = async () => {
-  const result = await fetcher.execute(queryUrl.value)
+  const result = await marketApi.execute(queryUrl.value)
   if (!result.success) return;
 
   toastsBus.emit({
     options: {
       severity: 'info',
-      detail: ' fetched some data',
       summary: 'Success 👍',
+      detail: ' fetched some data',
       life: 2000,
     }
   })
-
-  console.log('result.success', result.success)
-  console.log('result.data', result.data)
 }
 </script>
 
 <template>
-  <BlockUI :blocked="fetcher.isLoading.value" class="flex flex-col gap-4" :pt="{ mask: 'bg-surface-100 dark:bg-surface-900 opacity-40' }">
+  <BlockUI :blocked="marketApi.isLoading.value" class="flex flex-col gap-4" :pt="{ mask: 'bg-surface-100 dark:bg-surface-900 opacity-40' }">
     <SelectButton v-model="whatProblem" :options="options" optionLabel="value" dataKey="key" />
     <i class="font-mono text-sm">{{ queryUrl }}</i>
-    <Button :loading="fetcher.isLoading.value" @click="fetch" label="🤖 Run request 🐲" />
+    <Button :loading="marketApi.isLoading.value" @click="fetch" label="🤖 Run request 🐲" />
 
-    <pre v-if="fetcher.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">
-Raw error message: 
-{{ fetcher.error.value }}
-        </pre>
+    <pre v-if="marketApi.error.value" class="text-sm overflow-scroll border-2 border-orange-700  border-dashed rounded-lg px-2 pt-1">{{ marketApi.error.value }}
+    </pre>
 
-    <pre v-if="fetcher.data.value" :class="{ 'opacity-50': fetcher.error.value }" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">
-{{ fetcher.data.value }}
-        </pre>
+    <pre v-if="marketApi.data.value" :class="{ 'opacity-50': marketApi.error.value }" class="text-sm border-gray-500 border-2 border-dashed rounded-lg px-2 pt-1">{{ marketApi.data.value }}
+    </pre>
   </BlockUI>
 </template>

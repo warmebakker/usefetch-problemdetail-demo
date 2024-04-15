@@ -19,7 +19,7 @@ import Card from 'primevue/card'
       </template>
     </Card>
 
-    <Card class="mt-5 hidden">
+    <Card class="mt-5">
       <template #title>PUT with pre-get</template>
       <template #content>
         <FetcherPutData />
