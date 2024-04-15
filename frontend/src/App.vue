@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Toaster from '@/components/Toaster.vue'
+import Toaster from '@/components/BusToaster.vue'
 import LightDarkSwitch from '@/components/LighDarkSwich.vue'
 import FetcherGetData from '@/components/GetData.vue'
 import FetcherPostData from '@/components/PostData.vue'
